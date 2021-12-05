@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ships monitoring</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+
+    <style>#map { height: 900px; }</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script th:inline="javascript">
+
+    var map = L.map('map').setView([60.00, 4.00], 9);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var shipIcon = L.icon({
+        iconUrl: 'ship.png',
+        iconSize:     [38, 38], // size of the icon
+        iconAnchor:   [22, 22], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 4],  // the same for the shadow
+        popupAnchor:  [-3, -3] // point from which the popup should open relative to the iconAnchor
+    });
+
+    var portIcon = L.icon({
+        iconUrl: 'port.png',
+        iconSize:     [38, 38], // size of the icon
+        iconAnchor:   [22, 22], // point of the icon which will correspond to marker's location
+        shadowAnchor: [4, 4],  // the same for the shadow
+        popupAnchor:  [-3, -3] // point from which the popup should open relative to the iconAnchor
+    });
+
+    var area = [[${area}]]
+    var ships = [[${ships}]]
+
+        L.rectangle([[area.northWestLat, area.northWestLon],
+            [area.southEastLat, area.southEastLon],]).addTo(map);
+
+    ships.forEach(ship => {
+        L.marker([ship.lat, ship.lon],{icon: shipIcon}).addTo(map)
+            .bindPopup(ship.name)
+            .openPopup()
+            .on('mouseover', () => {
+                if(ship.destination != null) {
+                    polygon = L.polygon([
+                        [ship.lat, ship.lon],
+                        [ship.destination.lat, ship.destination.lon],]).addTo(map);
+                    port = L.marker([ship.destination.lat, ship.destination.lon], {icon: portIcon}).addTo(map)
+                }
+            })
+            .on('mousedown', () => {
+                polyline = L.polyline(ship.trackPoints.map(x => L.latLng(x.lat, x.lon)), {color: 'red'}).addTo(map);
+
+            })
+            .on('mouseup', () => {
+                map.removeLayer(polyline);
+            })
+            .on('mouseout', () => {
+                map.removeLayer(polygon)
+                map.removeLayer(port)
+            });
+    });
+
+
+</script>
+</body>
+</html>

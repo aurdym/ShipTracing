@@ -1,0 +1,20 @@
+
+area:
+  northWestLat: 61.61646
+  northWestLon: 3.15482
+  southWestLon: 3.15482
+  southWestLat: 59.39180
+  northEastLat: 61.61646
+  northEastLon: 4.43601
+  southEastLat: 59.39180
+  southEastLon: 4.43601
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    driver-class-name: "org.postgresql.Driver"
+    url: "jdbc:postgresql://localhost/ships"
+    username: user
+    password: passwd

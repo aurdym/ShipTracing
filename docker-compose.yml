@@ -1,0 +1,28 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+#    working_dir: /var/lib/postgresql/data
+    volumes:
+      - /tmp/ships:/var/lib/postgresql/data/ships
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: passwd
+      POSTGRES_DB: ships
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /var/lib/postgresql/data/ships/
+
+  ships-monitoring:
+    image: ships-monitoring
+    ports:
+      - 8080:8080
+    depends_on:
+      - "db"
+    environment:
+      ships-api.clientId: # Setup your Barentswatch API client id
+      ships-api.secret: #Setup your Barentswatch API secret
+      geocoding.apiKey: #Setup here secret key for geocoding API http://api.positionstack.com/
+      spring.datasource.url: "jdbc:postgresql://db/ships"
